@@ -214,8 +214,8 @@ While you're emerging, please be sure to include at least the following required
 
 * `app-portage/layman`
 * `dev-vcs/git`
-* `=sys-boot/grub-1.99_rc99`
-* `=sys-kernel/gentoo-sources-3.1.6`
+* `>=sys-boot/grub-2.02_beta2-r3`
+* `>=sys-kernel/gentoo-sources-3.1.6`
 
 Configuring the Kernel
 ----------------------
@@ -249,21 +249,6 @@ partition in this configuration.  Otherwise, you'll get a non-fatal warning each
 Installing ZFS et al.
 =====================
 
-Most of the ZFS-related packages have not yet entered the main Portage tree.  As such, an overlay must be used to obtain the ebuilds.  A layman overlay is provided.
-
-Setup Layman
-------------
-
-Hopefully you installed Layman in a previous emerge.  Now you'll need to add the ZFS overlay and add layman to your make.conf.
-		
-		# Insert the layman overlay URL for the ZFS & genkernel stuff & update.
-		$ layman -o https://raw.github.com/pendor/gentoo-zfs-overlay/master/overlay.xml -f -a zfs
-		
-		# Add layman to make.conf
-		$ echo "source /var/lib/layman/make.conf" >> /etc/make.conf
-
-Note that in the future, you can obtain updates to the overlay by running `layman -S`.  This is the equivalent of running `emerge --sync`.
-
 Installing Packages
 -------------------
 
@@ -273,12 +258,12 @@ Once you have a kernel built, SPL, ZFS, and genkernel can be installed.  All thr
 		=sys-kernel/spl-9999 **
 		=sys-fs/zfs-9999 **
 		=sys-kernel/genkernel-9999 **
-		=sys-boot/grub-1.99_rc99 **
+		=sys-boot/grub-2.02_beta2-r3 **
 		=sys-kernel/dracut-015 ~amd64
 		EOF
 
 		$ FILE=/etc/portage/package.use ; [ -d $FILE ] && FILE=$FILE/zfs ; cat >> $FILE <<EOF
-		=sys-boot/grub-1.99_rc99 zfs -truetype
+		=sys-boot/grub-2.02_beta2-r3 zfs -truetype
 		=sys-kernel/genkernel-9999 zfs
 		EOF
 		# ZFS is of course wanted, TrueType currently breaks on grub-mkfont.
@@ -289,7 +274,7 @@ Enable zfs in Dracut.  You might also want to add gensplash here, but that will 
 
 With the necessary keywords in place, you can emerge:
 
-		$ emerge -v =sys-kernel/spl-9999 =sys-fs/zfs-9999 =sys-kernel/dracut-015 =sys-kernel/genkernel-9999 =sys-boot/grub-1.99_rc99
+		$ emerge -v =sys-kernel/spl-9999 =sys-fs/zfs-9999 =sys-kernel/dracut-015 =sys-kernel/genkernel-9999 =sys-boot/grub-2.02_beta2-r3
 
 **Check for /etc/hostid**
 
@@ -329,14 +314,14 @@ Configuring GRUB is relatively straight forward.
 
 		# Setup the config file
 		$ cat /proc/mounts | grep -v rootfs > /etc/mtab
-		$ grub-mkconfig -o /boot/grub/grub.cfg
+		$ grub2-mkconfig -o /boot/grub/grub.cfg
 		
 		# Repeat for each device in the pool:
-		$ grub-install /dev/sda && grub-install /dev/sdb && [...]
+		$ grub2-install /dev/sda && grub2-install /dev/sdb && [...]
 
 **Unknown Filesystem**
 
-If grub-probe (run by grub-mkconfig) complains about unknown filesystem, you may need to reboot to pick up edited partition tables before Grub can install correctly (see the Important Note in the partitioning section).
+If grub-probe (run by grub2-mkconfig) complains about unknown filesystem, you may need to reboot to pick up edited partition tables before Grub can install correctly (see the Important Note in the partitioning section).
 
 Finish Installing
 -----------------
